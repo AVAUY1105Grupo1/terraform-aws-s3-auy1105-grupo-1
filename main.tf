@@ -23,3 +23,25 @@ resource "aws_s3_bucket_public_access_block" "storage_public_block" {
   ignore_public_acls      = var.s3_bucket_is_public ? false : true
   restrict_public_buckets = var.s3_bucket_is_public ? false : true
 }
+
+# NUEVO RECURSO: Asigna los permisos de lectura publica a internet para todos los objetos del bucket
+resource "aws_s3_bucket_policy" "storage_public_policy" {
+  bucket = aws_s3_bucket.storage.id
+
+  # Usamos jsonencode para estructurar de forma limpia la politica nativa de AWS IAM
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.storage.arn}/*"
+      }
+    ]
+  })
+
+  # CRITICO: La politica no se puede aplicar hasta que el bloque de acceso publico se haya removido por completo
+  depends_on = [aws_s3_bucket_public_access_block.storage_public_block]
+}
