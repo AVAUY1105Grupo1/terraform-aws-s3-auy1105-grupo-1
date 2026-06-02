@@ -1,0 +1,11 @@
+# Excluir carpetas temporales de Terraform
+.terraform/
+
+# Archivos de estado estatal de Terraform
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Ignorar archivos locales con parámetros variables
+*.tfvars
+*.tfvars.json
